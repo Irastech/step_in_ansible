@@ -1,0 +1,5 @@
+- name: "Remove #"
+       replace:
+          dest: /var/lib/pgsql/14/data/postgresql.conf
+          regexp: '#a\s*port.*='
+          replace: 'port ='
