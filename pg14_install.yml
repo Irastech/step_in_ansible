@@ -1,0 +1,50 @@
+ name: "Install server PG 14"
+  hosts: pg
+  become: yes
+  gather_facts: no
+  #  become_user: root
+  
+
+  tasks:
+     - name: Install PG software
+       yum:
+         name:
+           - postgresql14-libs-14.1-1PGDG.rhel8.x86_64.rpm
+           - postgresql14-14.1-1PGDG.rhel8.x86_64.rpm
+           - postgresql14-server-14.1-1PGDG.rhel8.x86_64.rpm
+         state: present
+     - name: "Find out PostgreSQL directory"
+       ansible.builtin.stat:
+         path: "/var/lib/pgsql/14/data/pg_hba.conf"
+       register: postgres_data
+
+     - name: "Initialize PostgreSQL"
+       shell: "/usr/pgsql-14/bin/postgresql-14-setup initdb"
+       when: not postgres_data.stat.exists
+     - name: "Start and enable services PostgreSQL"
+       systemd: 
+         name: postgresql-14
+         state: started
+         enabled: yes
+     
+     - name: "Configure pg_hba for local connection to PostgreSQL"
+       community.postgresql.postgresql_pg_hba:
+         dest: /var/lib/pgsql/14/data/pg_hba.conf
+         contype: host
+         users: all
+         source: 127.0.0.1/32
+         databases: all
+         method: trust
+
+     - name: "Configure PostgreSQL"
+       become_user: postgres
+       become: yes
+       community.postgresql.postgresql_set:
+         name: listen_addresses
+         value: '*' 
+
+     - name: "Restart services PostgreSQL"
+       systemd:
+         name: postgresql-14
+         state: restarted     
+ 
