@@ -1,0 +1,6 @@
+- name: "Insert line"
+       lineinfile:
+          dest: /etc/hosts
+          regexp: 'server'
+          line: '10.10.10.10 server'
+          state: present
