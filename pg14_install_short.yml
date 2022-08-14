@@ -33,7 +33,7 @@
          source: 127.0.0.1/32
          databases: all
          method: trust
-     - name: "Confffigure port"
+     - name: "Configure port"
        replace:
           dest: /var/lib/pgsql/14/data/postgresql.conf
           regexp: '#a\s*port.*='
